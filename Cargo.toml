@@ -1,0 +1,13 @@
+[package]
+name = "save_kitties"
+version = "0.1.0"
+authors = ["Joseph Catrambone <jo.jcat@gmail.com>"]
+
+[dependencies]
+#sdl2 = "0.27"
+
+[dependencies.sdl2]
+git = "https://github.com/AngryLawyer/rust-sdl2"
+#version = "0.27"
+default-features = false
+features = ["ttf", "image", "mixer"] #"gfx"
