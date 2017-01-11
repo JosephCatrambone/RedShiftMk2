@@ -9,35 +9,49 @@ use sdl2::render::Renderer;
 
 use ::Message;
 use scene::Scene;
-use actor::{Player, Cat, SpawnBuilding, TargetBuilding};
+use actor::Actor;
 
 pub struct Game {
-	player: Player,
-	cats: [Cat; 4],
-	spawner: SpawnBuilding,
-	target: TargetBuilding
+	player: Actor,
+	cats: Vec<Actor>,
+	spawner: Actor,
+	target: Actor
 }
 
 impl Game {
-	pub fn new() -> Game {
+	pub fn new(renderer: &mut Renderer) -> Game {
+		// Load the textures
+		let player_texture = renderer.load_texture(Path::new("assets/player.png")).unwrap();
+		let building_texture1 = renderer.load_texture(Path::new("assets/building1.png")).unwrap();
+		let building_texture2 = renderer.load_texture(Path::new("assets/building2.png")).unwrap();
+
 		Game {
-			player: Player::new(),
-			cats: [Cat::new(), Cat::new(), Cat::new(), Cat::new()],
-			spawner: SpawnBuilding::new(),
-			target: TargetBuilding::new()
+			player: Actor::new(player_texture),
+			cats: Vec::new(),
+			spawner: Actor::new(building_texture1),
+			target: Actor::new(building_texture2)
 		}
 	}
 }
 
 impl Scene for Game {
-	fn update(&mut self, renderer: &mut Renderer, deltaTime: f32) {
+	fn update(&mut self, renderer: &mut Renderer, delta_time: f32) {
 
 	}
 
-	fn render(&self, renderer: &mut Renderer) {
+	fn render(&self, mut renderer: &mut Renderer) {
 		// Clear the area.
 		renderer.set_draw_color(Color::RGBA(0,0,0,255));
 		renderer.clear();
+
+		self.player.render(&mut renderer);
+		/*
+		for cat in &self.cats {
+			cat.render(&mut renderer);
+		}
+		*/
+		self.spawner.render(&mut renderer);
+		self.target.render(&mut renderer);
 
 		renderer.present();
 	}

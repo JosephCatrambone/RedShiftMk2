@@ -33,7 +33,7 @@ fn main() {
 	let mut event_pump = sdl_context.event_pump().unwrap();
 	let mut scene_stack = Vec::<Box<Scene>>::new();
 
-	scene_stack.push(Box::new(Game::new()));
+	scene_stack.push(Box::new(Game::new(&mut renderer)));
 
 	// Sorta' standard way to load.
 	// let temp_surface = sdl2::surface::Surface::load_bmp(Path::new("assets/blah.bmp")).unwrap()
