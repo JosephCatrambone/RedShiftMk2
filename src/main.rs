@@ -13,6 +13,7 @@ mod actor;
 
 use scene::Scene;
 use scene::game::Game;
+use actor::*;
 
 pub enum Message {
 	RequestSceneChange(Box<Scene>),
@@ -50,11 +51,14 @@ fn main() {
 					break 'mainloop;
 				},
 				_ => {}
-			}
+			};
+			current_scene.handle_event(&event);
 		}
 		// Update logi
-		current_scene.update(&renderer, 10.0f32);
+		current_scene.update(&mut renderer, 16.0f32);
 		// Render.
-		current_scene.render(&renderer);
+		current_scene.render(&mut renderer);
+		// Delay before next frame.
+		std::thread::sleep(Duration::from_millis(16));
 	}
 }
