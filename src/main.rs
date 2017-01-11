@@ -1,7 +1,8 @@
 extern crate sdl2;
 
+use std::cmp;
 use std::env;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use std::path::Path;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -42,7 +43,9 @@ fn main() {
 	// let texture = renderer.load_texture(Path::new("assets/blah.png")).unwrap();
 
 	// Jump into main loop.
+	let mut last_frame = Instant::now();
 	'mainloop: loop {
+		let frame_start = Instant::now();
 		let mut current_scene = scene_stack.last_mut().unwrap();
 		// Handle input
 		for event in event_pump.poll_iter() {
@@ -54,11 +57,14 @@ fn main() {
 			};
 			current_scene.handle_event(&event);
 		}
-		// Update logi
-		current_scene.update(&mut renderer, 16.0f32);
+		// Update logic.
+		current_scene.update(&mut renderer, last_frame.elapsed().as_secs() as f32 + (last_frame.elapsed().subsec_nanos() as f32 * 0.0000001f32));
+		last_frame = Instant::now();
 		// Render.
 		current_scene.render(&mut renderer);
 		// Delay before next frame.
-		std::thread::sleep(Duration::from_millis(16));
+		if frame_start.elapsed() > Duration::from_millis(16) {
+			std::thread::sleep(Duration::from_millis(16) - frame_start.elapsed());
+		}
 	}
 }

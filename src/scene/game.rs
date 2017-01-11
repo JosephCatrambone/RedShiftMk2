@@ -15,7 +15,9 @@ pub struct Game {
 	player: Actor,
 	cats: Vec<Actor>,
 	spawner: Actor,
-	target: Actor
+	target: Actor,
+
+	player_acceleration: f32
 }
 
 impl Game {
@@ -25,17 +27,24 @@ impl Game {
 		let building_texture1 = renderer.load_texture(Path::new("assets/building1.png")).unwrap();
 		let building_texture2 = renderer.load_texture(Path::new("assets/building2.png")).unwrap();
 
-		Game {
+		let mut g = Game {
 			player: Actor::new(player_texture),
 			cats: Vec::new(),
 			spawner: Actor::new(building_texture1),
-			target: Actor::new(building_texture2)
-		}
+			target: Actor::new(building_texture2),
+			player_acceleration: 2.0f32
+		};
+
+		g.player.max_speed = 6.0f32;
+		g
 	}
 }
 
 impl Scene for Game {
 	fn update(&mut self, renderer: &mut Renderer, delta_time: f32) {
+		self.player.update(delta_time);
+		self.spawner.update(delta_time);
+		self.target.update(delta_time);
 
 	}
 
@@ -65,9 +74,41 @@ impl Scene for Game {
 
 	fn handle_event(&mut self, event: &Event) {
 		match *event {
+			// Left
 			Event::KeyDown {keycode: Some(Keycode::A), ..} | Event::KeyDown{keycode: Some(Keycode::Left), ..} => {
-				println!("Move left.");
+				self.player.acceleration[0] -= self.player_acceleration;
 			},
+			Event::KeyUp {keycode: Some(Keycode::A), ..} | Event::KeyUp{keycode: Some(Keycode::Left), ..} => {
+				self.player.acceleration[0] = 0f32;
+				self.player.velocity[0] = 0f32;
+			},
+			// Right
+			Event::KeyDown {keycode: Some(Keycode::D), ..} | Event::KeyDown{keycode: Some(Keycode::Right), ..} => {
+				self.player.acceleration[0] += self.player_acceleration;
+			},
+			Event::KeyUp {keycode: Some(Keycode::D), ..} | Event::KeyUp{keycode: Some(Keycode::Right), ..} => {
+				self.player.acceleration[0] = 0f32;
+				self.player.velocity[0] = 0f32;
+			},
+			// Debug
+			Event::KeyUp {keycode: Some(Keycode::U), ..} => {
+				self.player.max_speed += 0.1f32;
+				println!("Player max speed: {}", self.player.max_speed);
+			},
+			Event::KeyUp {keycode: Some(Keycode::I), ..} => {
+				self.player.max_speed -= 0.1f32;
+				println!("Player max speed: {}", self.player.max_speed);
+			},
+			Event::KeyUp {keycode: Some(Keycode::O), ..} => {
+				self.player_acceleration += 0.1f32;
+				println!("Player accel: {}", self.player_acceleration);
+			},
+			Event::KeyUp {keycode: Some(Keycode::P), ..} => {
+				self.player_acceleration -= 0.1f32;
+				println!("Player accel: {}", self.player_acceleration);
+			},
+
+
 			_ => {}
 		};
 	}
