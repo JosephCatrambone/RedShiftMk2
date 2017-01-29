@@ -58,12 +58,17 @@ fn main() {
 			current_scene.handle_event(&event);
 		}
 		// Update logic.
-		current_scene.update(&mut renderer, last_frame.elapsed().as_secs() as f32 + (last_frame.elapsed().subsec_nanos() as f32 * 0.0000001f32));
+		match current_scene.update(&mut renderer, last_frame.elapsed().as_secs() as f32 + (last_frame.elapsed().subsec_nanos() as f32 * 0.0000001f32)) {
+			Message::RequestQuit => {
+				break 'mainloop;
+			},
+			_ => {}
+		};
 		last_frame = Instant::now();
 		// Render.
 		current_scene.render(&mut renderer);
 		// Delay before next frame.
-		if frame_start.elapsed() > Duration::from_millis(16) {
+		if frame_start.elapsed() < Duration::from_millis(16) {
 			std::thread::sleep(Duration::from_millis(16) - frame_start.elapsed());
 		}
 	}

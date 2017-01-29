@@ -14,8 +14,6 @@ use actor::Actor;
 pub struct Game {
 	player: Actor,
 	cats: Vec<Actor>,
-	spawner: Actor,
-	target: Actor,
 
 	player_acceleration: f32
 }
@@ -23,15 +21,11 @@ pub struct Game {
 impl Game {
 	pub fn new(renderer: &mut Renderer) -> Game {
 		// Load the textures
-		let player_texture = renderer.load_texture(Path::new("assets/player.png")).unwrap();
-		let building_texture1 = renderer.load_texture(Path::new("assets/building1.png")).unwrap();
-		let building_texture2 = renderer.load_texture(Path::new("assets/building2.png")).unwrap();
+		let placeholder = renderer.load_texture(Path::new("res/placeholder.png")).unwrap();
 
 		let mut g = Game {
-			player: Actor::new(player_texture),
+			player: Actor::new(placeholder),
 			cats: Vec::new(),
-			spawner: Actor::new(building_texture1),
-			target: Actor::new(building_texture2),
 			player_acceleration: 2.0f32
 		};
 
@@ -41,11 +35,10 @@ impl Game {
 }
 
 impl Scene for Game {
-	fn update(&mut self, renderer: &mut Renderer, delta_time: f32) {
+	fn update(&mut self, renderer: &mut Renderer, delta_time: f32) -> Message {
 		self.player.update(delta_time);
-		self.spawner.update(delta_time);
-		self.target.update(delta_time);
 
+		Message::None
 	}
 
 	fn render(&self, mut renderer: &mut Renderer) {
@@ -59,9 +52,6 @@ impl Scene for Game {
 			cat.render(&mut renderer);
 		}
 		*/
-		self.spawner.render(&mut renderer);
-		self.target.render(&mut renderer);
-
 		renderer.present();
 	}
 
@@ -75,20 +65,29 @@ impl Scene for Game {
 	fn handle_event(&mut self, event: &Event) {
 		match *event {
 			// Left
-			Event::KeyDown {keycode: Some(Keycode::A), ..} | Event::KeyDown{keycode: Some(Keycode::Left), ..} => {
-				self.player.acceleration[0] -= self.player_acceleration;
-			},
-			Event::KeyUp {keycode: Some(Keycode::A), ..} | Event::KeyUp{keycode: Some(Keycode::Left), ..} => {
-				self.player.acceleration[0] = 0f32;
+			Event::KeyDown {keycode: Some(Keycode::A), repeat: false, ..} => {
+				self.player.acceleration[0] = -self.player_acceleration;
 				self.player.velocity[0] = 0f32;
 			},
-			// Right
-			Event::KeyDown {keycode: Some(Keycode::D), ..} | Event::KeyDown{keycode: Some(Keycode::Right), ..} => {
-				self.player.acceleration[0] += self.player_acceleration;
-			},
-			Event::KeyUp {keycode: Some(Keycode::D), ..} | Event::KeyUp{keycode: Some(Keycode::Right), ..} => {
-				self.player.acceleration[0] = 0f32;
+			Event::KeyDown {keycode: Some(Keycode::D), repeat: false, ..} => {
+				self.player.acceleration[0] = self.player_acceleration;
 				self.player.velocity[0] = 0f32;
+			},
+			Event::KeyDown {keycode: Some(Keycode::S), repeat: false, ..} => {
+				self.player.acceleration[1] = self.player_acceleration;
+				self.player.velocity[1] = 0f32;
+			},
+			Event::KeyDown {keycode: Some(Keycode::W), repeat: false, ..} => {
+				self.player.acceleration[1] = -self.player_acceleration;
+				self.player.velocity[1] = 0f32;
+			},
+
+			Event::KeyUp {keycode: Some(Keycode::A), repeat: false, ..} | Event::KeyUp{keycode: Some(Keycode::D), repeat: false, ..} | Event::KeyUp{keycode: Some(Keycode::Left), ..} => {
+				// TO FIX: If the player hits A + D, then releases D, we don't go back to A.
+				self.player.acceleration[0] = 0f32;
+			},
+			Event::KeyUp {keycode: Some(Keycode::W), repeat: false, ..} | Event::KeyUp{keycode: Some(Keycode::S), repeat: false, ..} => {
+				self.player.acceleration[1] = 0f32;
 			},
 			// Debug
 			Event::KeyUp {keycode: Some(Keycode::U), ..} => {
@@ -107,8 +106,6 @@ impl Scene for Game {
 				self.player_acceleration -= 0.1f32;
 				println!("Player accel: {}", self.player_acceleration);
 			},
-
-
 			_ => {}
 		};
 	}

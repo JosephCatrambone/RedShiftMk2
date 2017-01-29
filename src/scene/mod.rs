@@ -7,7 +7,7 @@ use sdl2::render::Renderer;
 use ::Message;
 
 pub trait Scene {
-	fn update(&mut self, renderer: &mut Renderer, deltaTime: f32);
+	fn update(&mut self, renderer: &mut Renderer, deltaTime: f32) -> Message;
 	fn render(&self, renderer: &mut Renderer);
 	fn destroy(&mut self);
 	fn handle_event(&mut self, &Event);

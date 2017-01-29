@@ -1,5 +1,5 @@
 [package]
-name = "save_kitties"
+name = "redshift"
 version = "0.1.0"
 authors = ["Joseph Catrambone <jo.jcat@gmail.com>"]
 
